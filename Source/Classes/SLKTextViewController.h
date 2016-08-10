@@ -386,6 +386,14 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 /** An array containing all the registered prefix strings for autocompletion. */
 @property (nonatomic, readonly, copy) NSArray *registeredPrefixes;
 
+#pragma mark - custom property for custom input
+@property (nonatomic, assign) CGFloat inputBarBottomPadding;
+
+/**
+ close keyboard, bring input view down
+ */
+- (void)resetViewPositions;
+
 /**
  Registers any string prefix for autocompletion detection, useful for user mentions and/or hashtags autocompletion.
  The prefix must be valid NSString (i.e: '@', '#', '\', and so on). This also checks if no repeated prefix is inserted.

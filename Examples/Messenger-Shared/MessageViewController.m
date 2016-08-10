@@ -73,7 +73,7 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+    self.inputBarBottomPadding = 60;
     NSMutableArray *array = [[NSMutableArray alloc] init];
     
     for (int i = 0; i < 100; i++) {
@@ -129,6 +129,7 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     
     [self.autoCompletionView registerClass:[MessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
     [self registerPrefixesForAutoCompletion:@[@"@", @"#", @":", @"+:"]];
+    [self resetViewPositions];
 }
 
 - (void)viewWillAppear:(BOOL)animated

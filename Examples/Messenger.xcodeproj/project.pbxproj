@@ -415,6 +415,7 @@
 		4F3EDB41199ED00F004C15D6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = "Slack Technologies, Inc.";
 				TargetAttributes = {

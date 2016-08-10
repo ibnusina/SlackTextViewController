@@ -189,7 +189,6 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     
     // Invalidates this flag when the view appears
     self.textView.didNotResignFirstResponder = NO;
-    
     [UIView performWithoutAnimation:^{
         // Reloads any cached text
         [self slk_reloadTextView];
@@ -397,7 +396,8 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     CGFloat keyboardMinY = CGRectGetMinY(keyboardRect);
     CGFloat inputAccessoryViewHeight = CGRectGetHeight(self.textInputbar.inputAccessoryView.bounds);
     
-    return MAX(0.0, viewHeight - (keyboardMinY + inputAccessoryViewHeight));
+    CGFloat keyboardDefaultHeight = MAX(0.0, viewHeight - (keyboardMinY + inputAccessoryViewHeight));
+    return keyboardDefaultHeight + self.inputBarBottomPadding;
 }
 
 - (CGFloat)slk_appropriateScrollViewHeight
@@ -549,6 +549,31 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 
 
 #pragma mark - Public & Subclassable Methods
+- (void)resetViewPositions {
+    self.keyboardHC.constant = self.inputBarBottomPadding;
+    [self slk_willShowOrHideKeyboard:[self closeKeyboardNotification]];
+    [self dismissKeyboard:YES];
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+}
+
+- (NSNotification *)closeKeyboardNotification {
+    CGFloat navigationHeight = self.navigationController.navigationBar.translucent ? 0 : 64;
+    CGFloat viewControllerHeight = CGRectGetHeight([UIScreen mainScreen].bounds) - navigationHeight;
+    CGRect bottomRect = CGRectMake(0, viewControllerHeight, 0, 0);
+    double animationDuration = 0.25;
+    double animationCurve = 7;
+    return [[NSNotification alloc] initWithName:UIKeyboardWillHideNotification
+                                         object:nil
+                                       userInfo:@{
+                                                UIKeyboardAnimationDurationUserInfoKey:[NSNumber numberWithDouble:animationDuration],UIKeyboardAnimationCurveUserInfoKey:[NSNumber numberWithDouble:animationCurve],
+                                                UIKeyboardFrameEndUserInfoKey:[NSValue valueWithCGRect:bottomRect]
+        }];
+}
+
+- (NSNotification *)showKeyboardNotification {
+    
+}
 
 - (void)presentKeyboard:(BOOL)animated
 {
@@ -966,6 +991,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (void)slk_didTapScrollView:(UIGestureRecognizer *)gesture
 {
     if (!self.isPresentedInPopover && !self.isExternalKeyboardDetected) {
+        [self resetViewPositions];
         [self dismissKeyboard:YES];
     }
 }
@@ -1909,7 +1935,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     self.typingIndicatorViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.typingIndicatorProxyView secondItem:nil];
     self.textInputbarHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.textInputbar secondItem:nil];
     self.keyboardHC = [self.view slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self.view secondItem:self.textInputbar];
-    
+    self.keyboardHC.constant = self.inputBarBottomPadding;
     self.textInputbarHC.constant = self.textInputbar.minimumInputbarHeight;
     self.scrollViewHC.constant = [self slk_appropriateScrollViewHeight];
     
@@ -1950,7 +1976,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     
     // Keyboard notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_willShowOrHideKeyboard:) name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_willShowOrHideKeyboard:) name:UIKeyboardWillHideNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_willShowOrHideKeyboard:) name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didShowOrHideKeyboard:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didShowOrHideKeyboard:) name:UIKeyboardDidHideNotification object:nil];
     
