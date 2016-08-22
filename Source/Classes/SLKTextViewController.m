@@ -71,6 +71,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 @property (nonatomic, strong) Class textViewClass;
 @property (nonatomic, strong) Class typingIndicatorViewClass;
 
+
 @end
 
 @implementation SLKTextViewController
@@ -551,7 +552,9 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 #pragma mark - Public & Subclassable Methods
 - (void)resetViewPositions {
     self.keyboardHC.constant = self.inputBarBottomPadding;
-    [self slk_willShowOrHideKeyboard:[self closeKeyboardNotification]];
+    self.textInputbarHC.constant = self.textInputbar.minimumInputbarHeight;
+    self.scrollViewHC.constant = [self slk_appropriateScrollViewHeight];
+    
     [self dismissKeyboard:YES];
     [self.view setNeedsLayout];
     [self.view layoutIfNeeded];
@@ -1225,6 +1228,19 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 
 
 #pragma mark - Notification Events
+
+- (void)slk_willShowKeyboard:(NSNotification *)notification
+{
+    self.shouldPreventInputBarDown = false;
+    [self slk_willShowOrHideKeyboard:notification];
+}
+
+- (void)slk_willHideKeyboard:(NSNotification *)notification
+{
+    if (!self.shouldPreventInputBarDown) {
+        [self slk_willShowOrHideKeyboard:notification];
+    }
+}
 
 - (void)slk_willShowOrHideKeyboard:(NSNotification *)notification
 {
@@ -1935,10 +1951,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     self.typingIndicatorViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.typingIndicatorProxyView secondItem:nil];
     self.textInputbarHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.textInputbar secondItem:nil];
     self.keyboardHC = [self.view slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self.view secondItem:self.textInputbar];
-    self.keyboardHC.constant = self.inputBarBottomPadding;
-    self.textInputbarHC.constant = self.textInputbar.minimumInputbarHeight;
-    self.scrollViewHC.constant = [self slk_appropriateScrollViewHeight];
-    
+    [self resetViewPositions];
     if (self.textInputbar.isEditing) {
         self.textInputbarHC.constant += self.textInputbar.editorContentViewHeight;
     }
@@ -1975,8 +1988,8 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     [self slk_unregisterNotifications];
     
     // Keyboard notifications
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_willShowOrHideKeyboard:) name:UIKeyboardWillShowNotification object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_willShowOrHideKeyboard:) name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_willShowKeyboard:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_willHideKeyboard:) name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didShowOrHideKeyboard:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didShowOrHideKeyboard:) name:UIKeyboardDidHideNotification object:nil];
     
