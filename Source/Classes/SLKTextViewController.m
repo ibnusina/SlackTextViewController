@@ -551,13 +551,10 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 
 #pragma mark - Public & Subclassable Methods
 - (void)resetViewPositions {
+    [self slk_willShowOrHideKeyboard:[self closeKeyboardNotification]];
     self.keyboardHC.constant = self.inputBarBottomPadding;
-    self.textInputbarHC.constant = self.textInputbar.minimumInputbarHeight;
-    self.scrollViewHC.constant = [self slk_appropriateScrollViewHeight];
     
     [self dismissKeyboard:YES];
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
 }
 
 - (NSNotification *)closeKeyboardNotification {
@@ -1899,7 +1896,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gesture
 {
     if ([gesture isEqual:self.singleTapGesture]) {
-        return [self.textView isFirstResponder] && !self.isExternalKeyboardDetected;
+        return (self.keyboardHC.constant > self.inputBarBottomPadding) || ([self.textView isFirstResponder] && !self.isExternalKeyboardDetected);
     }
     else if ([gesture isEqual:self.verticalPanGesture]) {
         
