@@ -28,6 +28,12 @@
 
 #import "SLKUIConstants.h"
 
+@protocol SLKTextViewControllerDelegate <NSObject>
+@optional
+- (void)textViewController:(SLKTextViewController *)textViewController scrollViewTapped:(UIScrollView *)scrollView;
+- (void)keyboardWillShow;
+@end
+
 /**
  UIKeyboard notification replacement, posting reliably only when showing/hiding the keyboard (not when resizing keyboard, or with inputAccessoryView reloads, etc).
  Only triggered when using SLKTextViewController's text view.
@@ -46,6 +52,8 @@ typedef NS_ENUM(NSUInteger, SLKKeyboardStatus) {
 
 /** @name A drop-in UIViewController subclass with a growing text input view and other useful messaging features. */
 NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController <UITextViewDelegate, UITableViewDelegate, UITableViewDataSource, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UIAlertViewDelegate>
+
+@property (nonatomic, weak) id<SLKTextViewControllerDelegate> delegate;
 
 /** The main table view managed by the controller object. Created by default initializing with -init or initWithNibName:bundle: */
 @property (nonatomic, readonly) UITableView *tableView;

@@ -994,6 +994,9 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         [self resetViewPositions];
         [self dismissKeyboard:YES];
     }
+    if (self.delegate) {
+        [self.delegate  textViewController:self scrollViewTapped:self.scrollView];
+    }
 }
 
 - (void)slk_didPanTextView:(UIGestureRecognizer *)gesture
@@ -1230,6 +1233,9 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 {
     self.shouldPreventInputBarDown = false;
     [self slk_willShowOrHideKeyboard:notification];
+    if (self.delegate) {
+        [self.delegate keyboardWillShow];
+    }
 }
 
 - (void)slk_willHideKeyboard:(NSNotification *)notification
