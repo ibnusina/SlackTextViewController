@@ -31,7 +31,7 @@
 @protocol SLKTextViewControllerDelegate <NSObject>
 @optional
 - (void)textViewController:(SLKTextViewController *)textViewController scrollViewTapped:(UIScrollView *)scrollView;
-- (void)keyboardWillShow;
+- (void)keyboardWillShowWithHeight:(CGFloat)height;
 @end
 
 /**

@@ -1234,7 +1234,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     self.shouldPreventInputBarDown = false;
     [self slk_willShowOrHideKeyboard:notification];
     if (self.delegate) {
-        [self.delegate keyboardWillShow];
+        [self.delegate keyboardWillShowWithHeight:[self slk_appropriateKeyboardHeightFromNotification:notification]];
     }
 }
 
