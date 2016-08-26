@@ -2123,4 +2123,11 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     [self slk_unregisterNotifications];
 }
 
+#pragma mark - keyboard height
+- (void)setKeyboardHeight:(CGFloat)keyboardHeight
+{
+    self.keyboardHC.constant = keyboardHeight;
+    [self resetViewPositions];
+}
+
 @end
