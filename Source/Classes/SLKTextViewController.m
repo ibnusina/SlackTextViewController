@@ -2131,7 +2131,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (void)setKeyboardHeight:(CGFloat)keyboardHeight
 {
     [UIView animateWithDuration:0.25 animations:^{
-        self.keyboardHC.constant = keyboardHeight;
+        self.keyboardHC.constant = keyboardHeight + self.inputBarBottomPadding;
     }];
 }
 
