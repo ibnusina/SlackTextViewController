@@ -33,6 +33,9 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     CGFloat _keyboardHeightBeforeDragging;
 }
 
+// internally saved to lift input bar
+@property (nonatomic, strong) NSNotification *keyboardWillShowNotification;
+
 // The shared scrollView pointer, either a tableView or collectionView
 @property (nonatomic, weak) UIScrollView *scrollViewProxy;
 
@@ -1232,6 +1235,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (void)slk_willShowKeyboard:(NSNotification *)notification
 {
     self.shouldPreventInputBarDown = false;
+    self.keyboardWillShowNotification = notification;
     [self slk_willShowOrHideKeyboard:notification];
     if (self.delegate) {
         [self.delegate keyboardWillShowWithHeight:[self slk_appropriateKeyboardHeightFromNotification:notification]];
@@ -2123,11 +2127,29 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     [self slk_unregisterNotifications];
 }
 
-#pragma mark - keyboard height
+#pragma mark - lift input bar programatically
 - (void)setKeyboardHeight:(CGFloat)keyboardHeight
 {
-    self.keyboardHC.constant = keyboardHeight;
-    [self resetViewPositions];
+    [UIView animateWithDuration:0.25 animations:^{
+        self.keyboardHC.constant = keyboardHeight;
+    }];
+}
+
+- (BOOL)canLiftInputBar
+{
+    return self.keyboardWillShowNotification != nil;
+}
+
+- (void)liftInputBar
+{
+    if ([self canLiftInputBar]) {
+        [self slk_willShowKeyboard:self.keyboardWillShowNotification];
+    }
+}
+
+- (BOOL)isInputBarLifted
+{
+    return self.keyboardHC.constant > self.inputBarBottomPadding;
 }
 
 @end

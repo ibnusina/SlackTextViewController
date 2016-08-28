@@ -524,6 +524,10 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 /** UIAlertViewDelegate */
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex NS_REQUIRES_SUPER;
 
-- (void)setKeyboardHeight:(CGFloat)keyboardHeight;
 
+#pragma mark - lift input bar programatically
+- (void)setKeyboardHeight:(CGFloat)keyboardHeight;
+- (BOOL)canLiftInputBar;
+- (void)liftInputBar;
+- (BOOL)isInputBarLifted;
 @end

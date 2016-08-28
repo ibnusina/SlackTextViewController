@@ -74,6 +74,7 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 {
     [super viewDidLoad];
     self.inputBarBottomPadding = 60;
+    self.textInputbar.contentInset = UIEdgeInsetsMake(5, 60, 5, 70);
     NSMutableArray *array = [[NSMutableArray alloc] init];
     
     for (int i = 0; i < 100; i++) {
