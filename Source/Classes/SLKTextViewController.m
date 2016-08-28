@@ -2130,9 +2130,15 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 #pragma mark - lift input bar programatically
 - (void)setKeyboardHeight:(CGFloat)keyboardHeight
 {
-    [UIView animateWithDuration:0.25 animations:^{
-        self.keyboardHC.constant = keyboardHeight + self.inputBarBottomPadding;
-    }];
+    self.keyboardHC.constant = keyboardHeight + self.inputBarBottomPadding;
+    [self.view slk_animateLayoutIfNeededWithDuration:0.25
+                                              bounce:NO
+                                             options:(7<<16)|UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState
+                                          animations:^{
+                                              [self slk_scrollToBottomIfNeeded];
+                                          }
+                                          completion:NULL];
+    
 }
 
 - (BOOL)canLiftInputBar
@@ -2143,13 +2149,56 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (void)liftInputBar
 {
     if ([self canLiftInputBar]) {
-        [self slk_willShowKeyboard:self.keyboardWillShowNotification];
+        [self liftInputBarWithNotification:self.keyboardWillShowNotification];
     }
 }
 
 - (BOOL)isInputBarLifted
 {
     return self.keyboardHC.constant > self.inputBarBottomPadding;
+}
+
+- (void)liftInputBarWithNotification:(NSNotification *)notification
+{
+    // Skips if the view isn't visible.
+    if (!self.view.window) {
+        return;
+    }
+    
+    // Skips if it is presented inside of a popover.
+    if (self.isPresentedInPopover) {
+        return;
+    }
+    
+    
+    NSInteger curve = [notification.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    NSTimeInterval duration = [notification.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    
+    SLKKeyboardStatus status = [self slk_keyboardStatusForNotification:notification];
+    
+    // Programatically stops scrolling before updating the view constraints (to avoid scrolling glitch).
+    if (status == SLKKeyboardStatusWillShow) {
+        [self.scrollViewProxy slk_stopScrolling];
+    }
+    
+    // Updates the height constraints' constants
+    self.keyboardHC.constant = [self slk_appropriateKeyboardHeightFromNotification:notification];
+    self.scrollViewHC.constant = [self slk_appropriateScrollViewHeight];
+    
+    // Updates and notifies about the keyboard status update
+    if ([self slk_updateKeyboardStatus:status]) {
+        // Posts custom keyboard notification, if logical conditions apply
+        [self slk_postKeyboarStatusNotification:notification];
+    }
+    
+    // Only for this animation, we set bo to bounce since we want to give the impression that the text input is glued to the keyboard.
+    [self.view slk_animateLayoutIfNeededWithDuration:duration
+                                              bounce:NO
+                                             options:(curve<<16)|UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState
+                                          animations:^{
+                                              [self slk_scrollToBottomIfNeeded];
+                                          }
+                                          completion:NULL];
 }
 
 @end
