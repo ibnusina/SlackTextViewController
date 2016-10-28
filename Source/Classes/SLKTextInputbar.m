@@ -71,6 +71,7 @@
 
 - (void)slk_commonInit
 {
+    self.buttonWidth = 48;
     self.charCountLabelNormalColor = [UIColor lightGrayColor];
     self.charCountLabelWarningColor = [UIColor redColor];
     
@@ -618,11 +619,12 @@
                               @"right" : @(self.contentInset.right),
                               @"rightVerMargin" : @(rightVerMargin),
                               @"minTextViewHeight" : @(self.textView.intrinsicContentSize.height),
+                              @"buttonWidth" : @(self.buttonWidth)
                               };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(0)]-(<=left)-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(0)-[leftButton(buttonWidth)]-(0)-[textView]-(0)-[rightButton(buttonWidth)]-(0)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=rightVerMargin)-[rightButton]-(<=rightVerMargin)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[rightButton(buttonWidth)]-(0@750)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left@250)-[charCountLabel(<=50@1000)]-(right@750)-|" options:0 metrics:metrics views:views]];
     
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[contentView(0)]-(<=top)-[textView(minTextViewHeight@250)]-(<=bottom)-|" options:0 metrics:metrics views:views]];
@@ -663,22 +665,20 @@
         CGSize leftButtonSize = [self.leftButton imageForState:self.leftButton.state].size;
         
         if (leftButtonSize.width > 0) {
-            self.leftButtonHC.constant = roundf(leftButtonSize.height);
-            self.bottomMarginWC.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0);
+            self.leftButtonHC.constant = roundf(self.buttonWidth);
+            self.bottomMarginWC.constant = roundf(0);
         }
         
-        self.leftButtonWC.constant = roundf(leftButtonSize.width);
-        self.leftMarginWC.constant = (leftButtonSize.width > 0) ? self.contentInset.left : zero;
+        self.leftButtonWC.constant = roundf(self.buttonWidth);
+        self.leftMarginWC.constant = zero;
         
-        self.rightButtonWC.constant = [self slk_appropriateRightButtonWidth];
-        self.rightMarginWC.constant = [self slk_appropriateRightButtonMargin];
-        
-        [self.rightButton sizeToFit];
+        self.rightButtonWC.constant = self.buttonWidth;
+        self.rightMarginWC.constant = 0;
         
         CGFloat rightVerMargin = (self.intrinsicContentSize.height - CGRectGetHeight(self.rightButton.frame)) / 2.0;
         
-        self.rightButtonTopMarginC.constant = rightVerMargin;
-        self.rightButtonBottomMarginC.constant = rightVerMargin;
+        self.rightButtonTopMarginC.constant = 0;
+        self.rightButtonBottomMarginC.constant = 0;
     }
 }
 
