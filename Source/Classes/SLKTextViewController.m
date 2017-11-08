@@ -576,10 +576,6 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         }];
 }
 
-- (NSNotification *)showKeyboardNotification {
-    
-}
-
 - (void)presentKeyboard:(BOOL)animated
 {
     // Skips if already first responder
