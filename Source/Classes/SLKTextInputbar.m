@@ -31,10 +31,6 @@
 @property (nonatomic, strong) NSLayoutConstraint *rightMarginWC;
 @property (nonatomic, strong) NSLayoutConstraint *rightButtonTopMarginC;
 @property (nonatomic, strong) NSLayoutConstraint *rightButtonBottomMarginC;
-@property (nonatomic, strong) NSLayoutConstraint *editorContentViewHC;
-@property (nonatomic, strong) NSArray *charCountLabelVCs;
-
-@property (nonatomic, strong) UILabel *charCountLabel;
 
 @property (nonatomic, strong) Class textViewClass;
 
@@ -72,18 +68,13 @@
 - (void)slk_commonInit
 {
     self.buttonWidth = 48;
-    self.charCountLabelNormalColor = [UIColor lightGrayColor];
-    self.charCountLabelWarningColor = [UIColor redColor];
     
     self.autoHideRightButton = YES;
-    self.editorContentViewHeight = 38.0;
     self.contentInset = UIEdgeInsetsMake(5.0, 8.0, 5.0, 8.0);
     
-    [self addSubview:self.editorContentView];
     [self addSubview:self.leftButton];
     [self addSubview:self.rightButton];
     [self addSubview:self.textView];
-    [self addSubview:self.charCountLabel];
     
     [self slk_setupViewConstraints];
     [self slk_updateConstraintConstants];
@@ -193,71 +184,6 @@
     return _rightButton;
 }
 
-- (UIView *)editorContentView
-{
-    if (!_editorContentView)
-    {
-        _editorContentView = [UIView new];
-        _editorContentView.translatesAutoresizingMaskIntoConstraints = NO;
-        _editorContentView.backgroundColor = self.backgroundColor;
-        _editorContentView.clipsToBounds = YES;
-        _editorContentView.hidden = YES;
-        
-        _editorTitle = [UILabel new];
-        _editorTitle.translatesAutoresizingMaskIntoConstraints = NO;
-        _editorTitle.text = NSLocalizedString(@"Editing Message", nil);
-        _editorTitle.textAlignment = NSTextAlignmentCenter;
-        _editorTitle.backgroundColor = [UIColor clearColor];
-        _editorTitle.font = [UIFont boldSystemFontOfSize:15.0];
-        [_editorContentView addSubview:self.editorTitle];
-        
-        _editortLeftButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        _editortLeftButton.translatesAutoresizingMaskIntoConstraints = NO;
-        _editortLeftButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-        _editortLeftButton.titleLabel.font = [UIFont systemFontOfSize:15.0];
-        [_editortLeftButton setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
-        [_editorContentView addSubview:self.editortLeftButton];
-        
-        _editortRightButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        _editortRightButton.translatesAutoresizingMaskIntoConstraints = NO;
-        _editortRightButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-        _editortRightButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0];
-        _editortRightButton.enabled = NO;
-        [_editortRightButton setTitle:NSLocalizedString(@"Save", nil) forState:UIControlStateNormal];
-        [_editorContentView addSubview:self.editortRightButton];
-        
-        NSDictionary *views = @{@"label": self.editorTitle,
-                                @"leftButton": self.editortLeftButton,
-                                @"rightButton": self.editortRightButton,
-                                };
-        
-        NSDictionary *metrics = @{@"left" : @(self.contentInset.left),
-                                  @"right" : @(self.contentInset.right)
-                                  };
-        
-        [_editorContentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(60)]-(left)-[label(>=0)]-(right)-[rightButton(60)]-(<=right)-|" options:0 metrics:metrics views:views]];
-        [_editorContentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[leftButton]|" options:0 metrics:metrics views:views]];
-        [_editorContentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[rightButton]|" options:0 metrics:metrics views:views]];
-        [_editorContentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[label]|" options:0 metrics:metrics views:views]];
-    }
-    return _editorContentView;
-}
-
-- (UILabel *)charCountLabel
-{
-    if (!_charCountLabel)
-    {
-        _charCountLabel = [UILabel new];
-        _charCountLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        _charCountLabel.backgroundColor = [UIColor clearColor];
-        _charCountLabel.textAlignment = NSTextAlignmentRight;
-        _charCountLabel.font = [UIFont systemFontOfSize:11.0];
-        
-        _charCountLabel.hidden = NO;
-    }
-    return _charCountLabel;
-}
-
 - (BOOL)isViewVisible
 {
     SEL selector = NSSelectorFromString(@"isViewVisible");
@@ -298,10 +224,6 @@
         height = minimumHeight;
     }
     
-    if (self.isEditing) {
-        height += self.editorContentViewHeight;
-    }
-    
     return roundf(height);
 }
 
@@ -333,19 +255,19 @@
 - (CGFloat)slk_appropriateRightButtonWidth
 {
     if (self.autoHideRightButton) {
-         if (self.textView.text.length == 0) {
-             return 0.0;
-         }
-     }
+        if (self.textView.text.length == 0) {
+            return 0.0;
+        }
+    }
     NSString *title = [self.rightButton titleForState:UIControlStateNormal];
-
+    
     CGSize rightButtonSize;
     if ([title length] == 0 && self.rightButton.imageView.image) {
         rightButtonSize = self.rightButton.imageView.image.size;
     } else {
         rightButtonSize = [title sizeWithAttributes:@{NSFontAttributeName: self.rightButton.titleLabel.font}];
     }
-
+    
     return rightButtonSize.width+self.contentInset.right;
 }
 
@@ -377,9 +299,7 @@
 
 - (void)setBackgroundColor:(UIColor *)color
 {
-    self.barTintColor = color;
-    self.textView.inputAccessoryView.backgroundColor = color;
-    self.editorContentView.backgroundColor = color;
+    [super setBackgroundColor:color];
 }
 
 - (void)setAutoHideRightButton:(BOOL)hide
@@ -423,42 +343,7 @@
     }
     
     _editing = editing;
-    _editorContentView.hidden = !editing;
 }
-
-- (void)setCounterPosition:(SLKCounterPosition)counterPosition
-{
-    if (self.counterPosition == counterPosition && self.charCountLabelVCs) {
-        return;
-    }
-    
-    // Clears the previous constraints
-    if (_charCountLabelVCs.count > 0) {
-        [self removeConstraints:_charCountLabelVCs];
-        _charCountLabelVCs = nil;
-    }
-    
-    _counterPosition = counterPosition;
-    
-    NSDictionary *views = @{@"rightButton": self.rightButton,
-                            @"charCountLabel": self.charCountLabel
-                            };
-    
-    NSDictionary *metrics = @{@"top" : @(self.contentInset.top),
-                              @"bottom" : @(-self.contentInset.bottom/2.0)
-                              };
-    
-    // Constraints are different depending of the counter's position type
-    if (counterPosition == SLKCounterPositionBottom) {
-        _charCountLabelVCs = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[charCountLabel]-(bottom)-[rightButton]" options:0 metrics:metrics views:views];
-    }
-    else {
-        _charCountLabelVCs = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(<=top,>=0)-[charCountLabel]-(>=0)-|" options:0 metrics:metrics views:views];
-    }
-    
-    [self addConstraints:self.charCountLabelVCs];
-}
-
 
 #pragma mark - Text Editing
 
@@ -517,9 +402,6 @@
     {
         counter = [NSString stringWithFormat:@"%ld", (long)(self.maxCharCount - text.length)];
     }
-    
-    self.charCountLabel.text = counter;
-    self.charCountLabel.textColor = [self limitExceeded] ? self.charCountLabelWarningColor : self.charCountLabelNormalColor;
 }
 
 
@@ -593,7 +475,6 @@
 {
     if (self.maxCharCount > 0) {
         BOOL shouldHide = (self.textView.numberOfLines == 1) || self.editing;
-        self.charCountLabel.hidden = shouldHide;
     }
 }
 
@@ -609,8 +490,6 @@
     NSDictionary *views = @{@"textView": self.textView,
                             @"leftButton": self.leftButton,
                             @"rightButton": self.rightButton,
-                            @"contentView": self.editorContentView,
-                            @"charCountLabel": self.charCountLabel
                             };
     
     NSDictionary *metrics = @{@"top" : @(self.contentInset.top),
@@ -625,12 +504,7 @@
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(0)-[leftButton(buttonWidth)]-(0)-[textView]-(0)-[rightButton(buttonWidth)]-(0)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[rightButton(buttonWidth)]-(0@750)-|" options:0 metrics:metrics views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left@250)-[charCountLabel(<=50@1000)]-(right@750)-|" options:0 metrics:metrics views:views]];
-    
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[contentView(0)]-(<=top)-[textView(minTextViewHeight@250)]-(<=bottom)-|" options:0 metrics:metrics views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[contentView]|" options:0 metrics:metrics views:views]];
-    
-    self.editorContentViewHC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.editorContentView secondItem:nil];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(<=top)-[textView(minTextViewHeight@250)]-(<=bottom)-|" options:0 metrics:metrics views:views]];
     
     self.leftButtonWC = [self slk_constraintForAttribute:NSLayoutAttributeWidth firstItem:self.leftButton secondItem:nil];
     self.leftButtonHC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.leftButton secondItem:nil];
@@ -651,7 +525,6 @@
     
     if (self.isEditing)
     {
-        self.editorContentViewHC.constant = self.editorContentViewHeight;
         self.leftButtonWC.constant = zero;
         self.leftButtonHC.constant = zero;
         self.leftMarginWC.constant = zero;
@@ -660,8 +533,6 @@
         self.rightMarginWC.constant = zero;
     }
     else {
-        self.editorContentViewHC.constant = zero;
-        
         CGSize leftButtonSize = [self.leftButton imageForState:self.leftButton.state].size;
         
         if (leftButtonSize.width > 0) {
@@ -721,11 +592,6 @@
     _textView.delegate = nil;
     _textView = nil;
     
-    _editorContentView = nil;
-    _editorTitle = nil;
-    _editortLeftButton = nil;
-    _editortRightButton = nil;
-    
     _leftButtonWC = nil;
     _leftButtonHC = nil;
     _leftMarginWC = nil;
@@ -734,7 +600,6 @@
     _rightMarginWC = nil;
     _rightButtonTopMarginC = nil;
     _rightButtonBottomMarginC = nil;
-    _editorContentViewHC = nil;
 }
 
 @end

@@ -33,7 +33,7 @@ typedef NS_ENUM(NSUInteger, SLKCounterPosition) {
 };
 
 /** @name A custom tool bar encapsulating messaging controls. */
-@interface SLKTextInputbar : UIToolbar
+@interface SLKTextInputbar : UIView
 
 /** A weak reference to the core view controller. */
 @property (nonatomic, weak) SLKTextViewController *controller;
@@ -89,21 +89,6 @@ typedef NS_ENUM(NSUInteger, SLKCounterPosition) {
 /// @name Text Editing
 ///------------------------------------------------
 
-/** The view displayed on top if the text input bar, containing the button outlets, when editing is enabled. */
-@property (nonatomic, strong) UIView *editorContentView;
-
-/** The title label displayed in the middle of the accessoryView. */
-@property (nonatomic, strong) UILabel *editorTitle;
-
-/** The 'cancel' button displayed left in the accessoryView. */
-@property (nonatomic, strong) UIButton *editortLeftButton;
-
-/** The 'accept' button displayed right in the accessoryView. */
-@property (nonatomic, strong) UIButton *editortRightButton;
-
-/** The accessory view's maximum height. Default is 38 pts. */
-@property (nonatomic, assign) CGFloat editorContentViewHeight;
-
 /** A Boolean value indicating whether the control is in edit mode. */
 @property (nonatomic, getter = isEditing) BOOL editing;
 
@@ -130,9 +115,6 @@ typedef NS_ENUM(NSUInteger, SLKCounterPosition) {
 ///------------------------------------------------
 /// @name Text Counting
 ///------------------------------------------------
-
-/** The label used to display the character counts. */
-@property (nonatomic, readonly) UILabel *charCountLabel;
 
 /** The maximum character count allowed. If larger than 0, a character count label will be displayed on top of the right button. Default is 0, which means limitless.*/
 @property (nonatomic, readwrite) NSUInteger maxCharCount;
